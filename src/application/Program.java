@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
+import entities.Product;
+
 public class Program {
 
 	public static void main(String[] args) {
@@ -22,39 +24,44 @@ public class Program {
 		File inFilePath = new File(inStringPath);
 		String outStringPath = inFilePath.getParent();
 		new File(outStringPath + "\\out").mkdir();
+		System.out.println("Folder '...\\out' created successfully!");
+		
 		try (BufferedReader br = new BufferedReader(new FileReader(inStringPath))) {
 			String lineInRead = br.readLine();
-			boolean fileCriationControl = false;
+			String lineParts[] = new String[3];
+			boolean fileCriationControl = false;				
 			while (lineInRead != null) {
-				String lineParts[] = new String[3];
 				lineParts = lineInRead.split(",");
-				double totalValue = Double.valueOf(lineParts[1]) * Double.valueOf(lineParts[2]);
+				String name = lineParts[0];
+				double price = Double.parseDouble(lineParts[1]);
+				int quantity = Integer.parseInt(lineParts[2]);
+				Product product = new Product(name, price, quantity);
 				if (fileCriationControl == false) {
 					try (BufferedWriter bw = new BufferedWriter(new FileWriter(outStringPath + "\\out\\summary.csv"))) {
-						bw.write(lineParts[0] + "," + totalValue);
+						bw.write(product.getName() + "," + product.totalValue());
 						bw.newLine();
 					} catch (IOException e) {
-						System.out.println("Error: " + e.getMessage());
+						System.out.println("Error creating file '...\\out\\summary.csv': " + e.getMessage());
 					} finally {
 						fileCriationControl = true;
 					}
 				} else {
 					try (BufferedWriter bw = new BufferedWriter(new FileWriter(outStringPath + "\\out\\summary.csv", true))) {
-						totalValue = Double.valueOf(lineParts[1]) * Double.valueOf(lineParts[2]);
-						bw.write(lineParts[0] + "," + totalValue);
+						bw.write(product.getName() + "," + product.totalValue());
 						bw.newLine();
 					} catch (IOException e) {
-						System.out.println("Error: " + e.getMessage());
+						System.out.println("Error updating file '...\\out\\summary.csv': " + e.getMessage());
 					}
 				}
 				lineInRead = br.readLine();
 			}
-		} catch (FileNotFoundException e) {
+		} 
+		catch (FileNotFoundException e) {
 			System.out.println("Error: " + e.getMessage());
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
-
 		input.close();
 	}
 
